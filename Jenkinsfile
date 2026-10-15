@@ -20,7 +20,7 @@ pipeline {
                 echo 'Installing Python dependencies'
 
                 sh '''
-                    python3 -m venv .venv
+                    .venv/bin/python -m venv .venv
                     .venv/bin/pip install -r requirements.txt
                 '''
             }
@@ -59,7 +59,7 @@ pipeline {
 
                     cd /tmp/student-task-manager
 
-                    python3 -m venv .venv
+                    .venv/bin/python -m venv .venv
 
                     .venv/bin/pip install -r requirements.txt
 
