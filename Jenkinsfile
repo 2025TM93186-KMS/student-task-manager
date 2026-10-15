@@ -31,7 +31,7 @@ pipeline {
                 echo 'Running automated tests'
 
                 sh '''
-                    python3 -m pytest
+                    .venv/bin/python3 -m pytest
                 '''
             }
         }
