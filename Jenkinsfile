@@ -19,9 +19,10 @@ pipeline {
             steps {
                 echo 'Installing Python dependencies'
 
-                sh '''
-                    .venv/bin/python -m venv .venv
-                    .venv/bin/pip install -r requirements.txt
+                // Windows uses 'bat' instead of 'sh'
+                bat '''
+                    python -m venv .venv
+                    .venv\\Scripts\\pip install -r requirements.txt
                 '''
             }
         }
@@ -30,9 +31,8 @@ pipeline {
             steps {
                 echo 'Running automated tests'
 
-                sh '''
-                    .venv/bin/python -m pytest
-
+                bat '''
+                    .venv\\Scripts\\python -m pytest
                 '''
             }
         }
@@ -41,7 +41,7 @@ pipeline {
             steps {
                 echo 'Running SonarQube analysis'
 
-                sh '''
+                bat '''
                     sonar-scanner
                 '''
             }
@@ -51,26 +51,32 @@ pipeline {
             steps {
                 echo 'Deploying application'
 
-                sh '''
-                    mkdir -p /tmp/student-task-manager
+                bat '''
+                    @echo off
+                    :: Create deployment target directory
+                    if not exist C:\\temp\\student-task-manager mkdir C:\\temp\\student-task-manager
 
-                    cp -r app.py templates static requirements.txt \
-                        /tmp/student-task-manager/
+                    :: Copy files (xcopy for directories, copy for files)
+                    copy app.py C:\\temp\\student-task-manager\\
+                    copy requirements.txt C:\\temp\\student-task-manager\\
+                    xcopy /E /I /Y templates C:\\temp\\student-task-manager\\templates
+                    xcopy /E /I /Y static C:\\temp\\student-task-manager\\static
 
-                    cd /tmp/student-task-manager
+                    cd C:\\temp\\student-task-manager
 
-                    .venv/bin/python -m venv .venv
+                    :: Create localized isolated venv
+                    python -m venv .venv
+                    .venv\\Scripts\\pip install -r requirements.txt
 
-                    .venv/bin/pip install -r requirements.txt
+                    :: Kill existing running Flask apps bound to port 5000 to avoid conflicts
+                    for /f "tokens=5" %%a in ('netstat -aon ^| findstr :5000 ^| findstr LISTENING') do (
+                        echo Killing existing process ID %%a
+                        taskkill /F /PID %%a
+                    )
 
-                    if [ -f app.pid ]; then
-                        kill $(cat app.pid) 2>/dev/null || true
-                    fi
-
-                    nohup .venv/bin/python app.py \
-                        > app.log 2>&1 &
-
-                    echo $! > app.pid
+                    :: Start the application in the background (Windows equivalent of nohup)
+                    set PYTHONPATH=.
+                    start /B .venv\\Scripts\\python app.py > app.log 2>&1
                 '''
             }
         }
@@ -78,7 +84,6 @@ pipeline {
     }
 
     post {
-
         success {
             echo 'CI/CD pipeline completed successfully'
         }
@@ -86,6 +91,5 @@ pipeline {
         failure {
             echo 'Pipeline failed - deployment was not completed'
         }
-
     }
 }
