@@ -61,5 +61,17 @@ pipeline {
 
     }
 
+        post {
+
+        success {
+            echo 'CI/CD pipeline completed successfully'
+        }
+
+        failure {
+            echo 'Pipeline failed - deployment was not completed'
+        }
+
+    }
+
     
 }
