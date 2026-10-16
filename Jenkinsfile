@@ -22,7 +22,7 @@ pipeline {
                 sh '''
                     python -m venv .venv
                     .venv/bin/pip install -r requirements.txt
-                    python3 -m pip install --upgrade pip
+                    .venv/bin/python3 -m pip install --upgrade pip
                 '''
             }
         }
