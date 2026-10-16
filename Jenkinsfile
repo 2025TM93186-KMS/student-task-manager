@@ -14,10 +14,9 @@ pipeline {
             steps {
                 echo 'Installing Dependencies'
                 bat '''
-                    :: We skip 'python -m venv' because PyCharm already built it.
-                    :: Use 'venv' or '.venv' depending on what PyCharm named your folder:
-                    venv\\Scripts\\python -m pip install --upgrade pip
+                    python3 -m venv venv
                     venv\\Scripts\\pip install -r requirements.txt
+                    venv\\Scripts\\python -m pip install --upgrade pip
                 '''
             }
         }
