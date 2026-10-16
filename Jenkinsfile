@@ -14,7 +14,7 @@ pipeline {
             steps {
                 echo 'Installing Dependencies'
                 bat '''
-                    python3 -m venv venv
+                    py -m venv venv
                     venv\\Scripts\\pip install -r requirements.txt
                     venv\\Scripts\\python -m pip install --upgrade pip
                 '''
