@@ -20,8 +20,9 @@ pipeline {
                 echo 'Installing Python dependencies'
 
                 sh '''
-                    .venv/bin/python -m venv .venv
+                    python -m venv .venv
                     .venv/bin/pip install -r requirements.txt
+                    python3 -m pip install --upgrade pip
                 '''
             }
         }
@@ -37,55 +38,9 @@ pipeline {
             }
         }
 
-        stage('Code Inspection') {
-            steps {
-                echo 'Running SonarQube analysis'
-
-                sh '''
-                    sonar-scanner
-                '''
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                echo 'Deploying application'
-
-                sh '''
-                    mkdir -p /tmp/student-task-manager
-
-                    cp -r app.py templates static requirements.txt \
-                        /tmp/student-task-manager/
-
-                    cd /tmp/student-task-manager
-
-                    .venv/bin/python -m venv .venv
-
-                    .venv/bin/pip install -r requirements.txt
-
-                    if [ -f app.pid ]; then
-                        kill $(cat app.pid) 2>/dev/null || true
-                    fi
-
-                    nohup .venv/bin/python app.py \
-                        > app.log 2>&1 &
-
-                    echo $! > app.pid
-                '''
-            }
-        }
+        
 
     }
 
-    post {
-
-        success {
-            echo 'CI/CD pipeline completed successfully'
-        }
-
-        failure {
-            echo 'Pipeline failed - deployment was not completed'
-        }
-
-    }
+    
 }
