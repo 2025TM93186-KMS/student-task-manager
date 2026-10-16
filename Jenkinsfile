@@ -14,9 +14,10 @@ pipeline {
             steps {
                 echo 'Installing Dependencies'
                 bat '''
-                    python -m venv .venv
-                    .venv\\Scripts\\python -m pip install --upgrade pip
-                    .venv\\Scripts\\pip install -r requirements.txt
+                    :: We skip 'python -m venv' because PyCharm already built it.
+                    :: Use 'venv' or '.venv' depending on what PyCharm named your folder:
+                    venv\\Scripts\\python -m pip install --upgrade pip
+                    venv\\Scripts\\pip install -r requirements.txt
                 '''
             }
         }
@@ -24,7 +25,7 @@ pipeline {
             steps {
                 echo 'Running automated test'
                 bat '''
-                    .venv\\Scripts\\python -m pytest
+                    venv\\Scripts\\python -m pytest
                 '''
             }
         }
